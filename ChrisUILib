@@ -1,0 +1,235 @@
+-- ChrisUILib - Module Version (Updated with Toggle, TextBox, Minimize/Close, Click Sound)
+
+local ChrisUILib = {}
+
+function ChrisUILib:CreateWindow(title) local ScreenGui = Instance.new("ScreenGui") local MainFrame = Instance.new("Frame") local TopBar = Instance.new("TextLabel") local MinimizeBtn = Instance.new("TextButton") local CloseBtn = Instance.new("TextButton") local SideFrame = Instance.new("ScrollingFrame") local Tabs = {} local tabButtons = {}
+
+local function AddCorner(instance, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius)
+	corner.Parent = instance
+end
+
+ScreenGui.Name = "CustomHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local minimized = false
+local fullSize = UDim2.new(0, 450, 0, 320)
+local minimizedSize = UDim2.new(0, 450, 0, 40)
+
+MainFrame.Size = fullSize
+MainFrame.Position = UDim2.new(0.5, -225, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+MainFrame.Active = true
+MainFrame.Draggable = true
+AddCorner(MainFrame, 8)
+
+TopBar.Size = UDim2.new(1, -70, 0, 30)
+TopBar.Position = UDim2.new(0, 10, 0, 5)
+TopBar.BackgroundTransparency = 1
+TopBar.Text = title or "Unnamed Hub | UI Library"
+TopBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+TopBar.TextXAlignment = Enum.TextXAlignment.Left
+TopBar.Font = Enum.Font.SourceSansBold
+TopBar.TextSize = 20
+TopBar.Parent = MainFrame
+
+MinimizeBtn.Size = UDim2.new(0, 30, 0, 30)
+MinimizeBtn.Position = UDim2.new(1, -70, 0, 5)
+MinimizeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeBtn.Font = Enum.Font.SourceSansBold
+MinimizeBtn.TextSize = 25
+MinimizeBtn.Parent = MainFrame
+AddCorner(MinimizeBtn, 8)
+
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
+CloseBtn.Text = "×"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.Font = Enum.Font.SourceSansBold
+CloseBtn.TextSize = 25
+CloseBtn.Parent = MainFrame
+AddCorner(CloseBtn, 8)
+
+CloseBtn.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+MinimizeBtn.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	MainFrame.Size = minimized and minimizedSize or fullSize
+	MinimizeBtn.Text = minimized and "+" or "-"
+
+	for _, v in pairs(MainFrame:GetChildren()) do
+		if v ~= TopBar and v ~= MinimizeBtn and v ~= CloseBtn then
+			v.Visible = not minimized
+		end
+	end
+end)
+
+SideFrame.Size = UDim2.new(0, 100, 1, -50)
+SideFrame.Position = UDim2.new(0, 10, 0, 40)
+SideFrame.BackgroundTransparency = 1
+SideFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+SideFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+SideFrame.ScrollBarThickness = 4
+SideFrame.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+SideFrame.ClipsDescendants = true
+SideFrame.Parent = MainFrame
+
+local buttonLayout = Instance.new("UIListLayout")
+buttonLayout.Padding = UDim.new(0, 5)
+buttonLayout.SortOrder = Enum.SortOrder.LayoutOrder
+buttonLayout.Parent = SideFrame
+
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://876939830"
+clickSound.Volume = 1
+clickSound.Name = "ClickSound"
+clickSound.Parent = MainFrame
+
+local function playClick()
+	if clickSound.IsLoaded then
+		clickSound:Play()
+	else
+		clickSound.Loaded:Wait()
+		clickSound:Play()
+	end
+end
+
+local function CreateTab(name)
+	local tab = Instance.new("ScrollingFrame")
+	tab.Size = UDim2.new(1, -130, 1, -50)
+	tab.Position = UDim2.new(0, 120, 0, 40)
+	tab.BackgroundTransparency = 1
+	tab.CanvasSize = UDim2.new(0, 0, 0, 0)
+	tab.ScrollBarThickness = 6
+	tab.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	tab.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+	tab.ClipsDescendants = true
+	tab.Active = true
+	tab.Visible = false
+	tab.Parent = MainFrame
+	AddCorner(tab, 8)
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 6)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = tab
+
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, 0, 0, 35)
+	button.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
+	button.Text = name
+	button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	button.Font = Enum.Font.SourceSansBold
+	button.TextSize = 18
+	AddCorner(button, 8)
+	button.Parent = SideFrame
+
+	button.MouseButton1Click:Connect(function()
+		for _, t in pairs(Tabs) do
+			t.Visible = false
+		end
+		tab.Visible = true
+		playClick()
+	end)
+
+	Tabs[#Tabs + 1] = tab
+	tab.Visible = #Tabs == 1
+
+	local api = {}
+
+	function api:AddLabel(text)
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(1, -10, 0, 30)
+		label.BackgroundTransparency = 1
+		label.Text = text
+		label.TextColor3 = Color3.fromRGB(255, 255, 255)
+		label.Font = Enum.Font.SourceSans
+		label.TextSize = 20
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.LayoutOrder = #tab:GetChildren()
+		label.Parent = tab
+	end
+
+	function api:AddButton(text, callback)
+		local button = Instance.new("TextButton")
+		button.Size = UDim2.new(1, -10, 0, 30)
+		button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+		button.Text = text
+		button.TextColor3 = Color3.fromRGB(255, 255, 255)
+		button.Font = Enum.Font.SourceSans
+		button.TextSize = 18
+		button.LayoutOrder = #tab:GetChildren()
+		button.Parent = tab
+		AddCorner(button, 6)
+		button.MouseButton1Click:Connect(function()
+			playClick()
+			pcall(callback)
+		end)
+	end
+
+	function api:AddToggle(text, callback)
+		local state = false
+		local button = Instance.new("TextButton")
+		button.Size = UDim2.new(1, -10, 0, 30)
+		button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+		button.Text = "🔘 Off"
+		button.TextColor3 = Color3.fromRGB(255, 255, 255)
+		button.Font = Enum.Font.SourceSans
+		button.TextSize = 18
+		button.LayoutOrder = #tab:GetChildren()
+		button.Parent = tab
+		AddCorner(button, 6)
+
+		button.MouseButton1Click:Connect(function()
+			state = not state
+			button.Text = state and "✅ On" or "🔘 Off"
+			playClick()
+			pcall(callback, state)
+		end)
+	end
+
+	function api:AddTextbox(placeholder, callback)
+		local box = Instance.new("TextBox")
+		box.Size = UDim2.new(1, -10, 0, 30)
+		box.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		box.PlaceholderText = placeholder
+		box.Text = ""
+		box.TextColor3 = Color3.fromRGB(255, 255, 255)
+		box.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+		box.Font = Enum.Font.SourceSans
+		box.TextSize = 18
+		box.LayoutOrder = #tab:GetChildren()
+		box.ClearTextOnFocus = false
+		box.Parent = tab
+		AddCorner(box, 6)
+
+		box.FocusLost:Connect(function(enter)
+			if enter and box.Text ~= "" then
+				pcall(callback, box.Text)
+			end
+		end)
+	end
+
+	return api
+end
+
+local window = {}
+function window:CreateTab(name)
+	return CreateTab(name)
+end
+
+return window
+
+end
+
+return ChrisUILib
+
