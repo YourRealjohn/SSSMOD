@@ -1,149 +1,151 @@
 local ChrisUILib = {}
 
-function ChrisUILib:Create(config)
-	local player = game.Players.LocalPlayer
-	local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-	gui.ResetOnSpawn = false
+function ChrisUILib:CreateWindow(title)
+	local ScreenGui = Instance.new("ScreenGui")
+	local MainFrame = Instance.new("Frame")
+	local TopBar = Instance.new("TextLabel")
+	local MinimizeBtn = Instance.new("TextButton")
+	local SideFrame = Instance.new("ScrollingFrame")
+	local Tabs, TabButtons = {}, {}
 
-	-- Main Frame
-	local mainFrame = Instance.new("Frame", gui)
-	mainFrame.Size = UDim2.new(0, 550, 0, 355)
-	mainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
-	mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	mainFrame.Active = true
-	mainFrame.Draggable = true
-	mainFrame.ClipsDescendants = true
-
-	-- Tab Background
-	local tabBg = Instance.new("TextLabel", mainFrame)
-	tabBg.Size = UDim2.new(0, 160, 0, 900)
-	tabBg.Position = UDim2.new(0.5, -300, 0.5, -135)
-	tabBg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	tabBg.BackgroundTransparency = 0
-	tabBg.Text = ""
-
-	-- Title Bar
-	local title = Instance.new("TextLabel", mainFrame)
-	title.Size = UDim2.new(1, -80, 0, 40)
-	title.Position = UDim2.new(1, -550, 0, 0)
-	title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	title.Text = config.Title or "Unnamed Hub | UI Library"
-	title.TextColor3 = Color3.fromRGB(255, 255, 255)
-	title.Font = Enum.Font.SourceSansBold
-	title.TextSize = 25
-	title.TextXAlignment = Enum.TextXAlignment.Right
-
-	-- Credit Label
-	local creditLabel = Instance.new("TextLabel", mainFrame)
-	creditLabel.Size = UDim2.new(0, 100, 0, 40)
-	creditLabel.Position = UDim2.new(1, -200, 0, 0)
-	creditLabel.BackgroundTransparency = 1
-	creditLabel.Text = config.Credit or "By : Chris"
-	creditLabel.TextColor3 = Color3.fromRGB(250, 250, 250)
-	creditLabel.Font = Enum.Font.SourceSansBold
-	creditLabel.TextSize = 15
-	creditLabel.TextXAlignment = Enum.TextXAlignment.Left
-	creditLabel.BorderSizePixel = 0
-
-	-- Minimize Button
-	local minimizeButton = Instance.new("TextButton", mainFrame)
-	minimizeButton.Size = UDim2.new(0, 40, 0, 40)
-	minimizeButton.Position = UDim2.new(1, -80, 0, 0)
-	minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
-	minimizeButton.Text = "-"
-	minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-	minimizeButton.Font = Enum.Font.SourceSansBold
-	minimizeButton.TextSize = 20
-	minimizeButton.BorderSizePixel = 0
-
-	-- Close Button
-	local closeButton = Instance.new("TextButton", mainFrame)
-	closeButton.Size = UDim2.new(0, 40, 0, 40)
-	closeButton.Position = UDim2.new(1, -40, 0, 0)
-	closeButton.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
-	closeButton.Text = "X"
-	closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-	closeButton.Font = Enum.Font.SourceSansBold
-	closeButton.TextSize = 20
-	closeButton.BorderSizePixel = 0
-
-	-- Tabs Table
-	local tabs = {}
-
-	function tabs:AddTab(name)
-		-- Tab Button
-		local tabButton = Instance.new("TextButton", mainFrame)
-		tabButton.Size = UDim2.new(0, 160, 0, 55)
-		tabButton.Position = UDim2.new(0.5, -300, 0, 55 * (#mainFrame:GetChildren() - 6))
-		tabButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-		tabButton.Text = name
-		tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-		tabButton.Font = Enum.Font.SourceSansBold
-		tabButton.TextSize = 20
-		tabButton.BorderSizePixel = 0
-
-		-- Tab Content Frame
-		local tabFrame = Instance.new("Frame", mainFrame)
-		tabFrame.Size = UDim2.new(0, 370, 0, 270)
-		tabFrame.Position = UDim2.new(0, 170, 0, 70)
-		tabFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-		tabFrame.Visible = false
-
-		local layout = Instance.new("UIListLayout", tabFrame)
-		layout.Padding = UDim.new(0, 5)
-		layout.SortOrder = Enum.SortOrder.LayoutOrder
-
-		local padding = Instance.new("UIPadding", tabFrame)
-		padding.PaddingTop = UDim.new(0, 10)
-		padding.PaddingLeft = UDim.new(0, 10)
-
-		tabButton.MouseButton1Click:Connect(function()
-			for _, obj in pairs(mainFrame:GetChildren()) do
-				if obj:IsA("Frame") and obj ~= tabBg then
-					obj.Visible = false
-				end
-			end
-			tabFrame.Visible = true
-		end)
-
-		return {
-			AddButton = function(_, text, callback)
-				local btn = Instance.new("TextButton", tabFrame)
-				btn.Size = UDim2.new(1, -10, 0, 30)
-				btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-				btn.Text = text
-				btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-				btn.Font = Enum.Font.SourceSans
-				btn.TextSize = 16
-				btn.MouseButton1Click:Connect(callback or function() end)
-			end,
-			AddLabel = function(_, text)
-				local label = Instance.new("TextLabel", tabFrame)
-				label.Size = UDim2.new(1, -10, 0, 25)
-				label.BackgroundTransparency = 1
-				label.Text = text
-				label.TextColor3 = Color3.fromRGB(200, 200, 200)
-				label.Font = Enum.Font.SourceSans
-				label.TextSize = 16
-			end
-		}
+	local function AddCorner(obj, radius)
+		local uicorner = Instance.new("UICorner")
+		uicorner.CornerRadius = UDim.new(0, radius)
+		uicorner.Parent = obj
 	end
 
-	closeButton.MouseButton1Click:Connect(function()
-		gui:Destroy()
+	ScreenGui.Name = "ChrisHubUI"
+	ScreenGui.ResetOnSpawn = false
+	ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+	MainFrame.Size = UDim2.new(0, 400, 0, 250)
+	MainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
+	MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	MainFrame.BorderSizePixel = 0
+	MainFrame.Active = true
+	MainFrame.Draggable = true
+	MainFrame.Parent = ScreenGui
+	AddCorner(MainFrame, 8)
+
+	TopBar.Size = UDim2.new(1, -40, 0, 30)
+	TopBar.Position = UDim2.new(0, 10, 0, 5)
+	TopBar.BackgroundTransparency = 1
+	TopBar.Text = title or "Chris Hub"
+	TopBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TopBar.Font = Enum.Font.SourceSansBold
+	TopBar.TextSize = 20
+	TopBar.TextXAlignment = Enum.TextXAlignment.Left
+	TopBar.Parent = MainFrame
+
+	MinimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+	MinimizeBtn.Position = UDim2.new(1, -30, 0, 5)
+	MinimizeBtn.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
+	MinimizeBtn.Text = "-"
+	MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	MinimizeBtn.Parent = MainFrame
+	AddCorner(MinimizeBtn, 8)
+
+	MinimizeBtn.MouseButton1Click:Connect(function()
+		MainFrame.Visible = not MainFrame.Visible
 	end)
 
-	local minimized = false
-	local fullSize = UDim2.new(0, 550, 0, 355)
-	local minimizedSize = UDim2.new(0, 550, 0, 40)
+	SideFrame.Size = UDim2.new(0, 100, 1, -50)
+	SideFrame.Position = UDim2.new(0, 10, 0, 40)
+	SideFrame.BackgroundTransparency = 1
+	SideFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	SideFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	SideFrame.ScrollBarThickness = 4
+	SideFrame.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+	SideFrame.ClipsDescendants = true
+	SideFrame.Parent = MainFrame
 
-	minimizeButton.MouseButton1Click:Connect(function()
-		minimized = not minimized
-		mainFrame.Size = minimized and minimizedSize or fullSize
-		minimizeButton.Text = minimized and "+" or "-"
-	end)
+	local buttonLayout = Instance.new("UIListLayout")
+	buttonLayout.Padding = UDim.new(0, 5)
+	buttonLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	buttonLayout.Parent = SideFrame
 
-	return tabs
+	local Window = {}
+
+	function Window:CreateTab(name)
+		local TabFrame = Instance.new("ScrollingFrame")
+		TabFrame.Size = UDim2.new(1, -130, 1, -50)
+		TabFrame.Position = UDim2.new(0, 120, 0, 40)
+		TabFrame.BackgroundTransparency = 1
+		TabFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+		TabFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		TabFrame.ScrollBarThickness = 6
+		TabFrame.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+		TabFrame.ClipsDescendants = true
+		TabFrame.Active = true
+		TabFrame.Visible = false
+		TabFrame.Parent = MainFrame
+		AddCorner(TabFrame, 8)
+
+		local layout = Instance.new("UIListLayout")
+		layout.Padding = UDim.new(0, 6)
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+		layout.Parent = TabFrame
+
+		local TabButton = Instance.new("TextButton")
+		TabButton.Size = UDim2.new(1, 0, 0, 35)
+		TabButton.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
+		TabButton.Text = name
+		TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		TabButton.Font = Enum.Font.SourceSansBold
+		TabButton.TextSize = 18
+		AddCorner(TabButton, 8)
+		TabButton.Parent = SideFrame
+
+		table.insert(Tabs, TabFrame)
+		table.insert(TabButtons, TabButton)
+
+		TabButton.MouseButton1Click:Connect(function()
+			for _, tab in ipairs(Tabs) do
+				tab.Visible = false
+			end
+			TabFrame.Visible = true
+		end)
+
+		if #Tabs == 1 then
+			TabFrame.Visible = true
+		end
+
+		local Tab = {}
+
+		function Tab:AddLabel(text)
+			local Label = Instance.new("TextLabel")
+			Label.Size = UDim2.new(1, -10, 0, 30)
+			Label.BackgroundTransparency = 1
+			Label.Text = text
+			Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+			Label.Font = Enum.Font.SourceSans
+			Label.TextSize = 20
+			Label.TextXAlignment = Enum.TextXAlignment.Left
+			Label.LayoutOrder = #TabFrame:GetChildren()
+			Label.Parent = TabFrame
+		end
+
+		function Tab:AddButton(text, callback)
+			local Button = Instance.new("TextButton")
+			Button.Size = UDim2.new(1, -10, 0, 30)
+			Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+			Button.Text = text
+			Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+			Button.Font = Enum.Font.SourceSans
+			Button.TextSize = 18
+			Button.LayoutOrder = #TabFrame:GetChildren()
+			Button.Parent = TabFrame
+			AddCorner(Button, 6)
+
+			Button.MouseButton1Click:Connect(function()
+				pcall(callback)
+			end)
+		end
+
+		return Tab
+	end
+
+	return Window
 end
 
 return ChrisUILib
