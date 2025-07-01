@@ -1,0 +1,120 @@
+-- SimpleExecutorUILib.lua
+
+local SimpleExecutorUILib = {}
+SimpleExecutorUILib.__index = SimpleExecutorUILib
+
+local CoreGui = game:GetService("CoreGui")
+
+function SimpleExecutorUILib:CreateWindow(title)
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = title .. "_UI"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = CoreGui
+
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0, 400, 0, 300)
+    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    mainFrame.Parent = screenGui
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 30)
+    titleLabel.Text = title
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    titleLabel.Parent = mainFrame
+
+    self.ScreenGui = screenGui
+    self.MainFrame = mainFrame
+
+    return self
+end
+
+function SimpleExecutorUILib:CreateTab(name)
+    local tabButton = Instance.new("TextButton")
+    tabButton.Size = UDim2.new(0, 100, 0, 30)
+    tabButton.Position = UDim2.new(0, #self.MainFrame:GetChildren() * 110, 0, -35)
+    tabButton.Text = name
+    tabButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tabButton.Parent = self.MainFrame
+
+    local notification = Instance.new("Frame")
+    notification.Size = UDim2.new(0, 10, 0, 10)
+    notification.Position = UDim2.new(1, -15, 0, 5)
+    notification.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    notification.Visible = false
+    notification.Parent = tabButton
+
+    return {
+        Button = tabButton,
+        Notify = function(state)
+            notification.Visible = state
+        end
+    }
+end
+
+function SimpleExecutorUILib:CreateTextLabel(text, pos)
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(0, 200, 0, 30)
+    textLabel.Position = pos or UDim2.new(0, 10, 0, 40)
+    textLabel.Text = text
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    textLabel.Parent = self.MainFrame
+    return textLabel
+end
+
+function SimpleExecutorUILib:CreateButton(text, pos, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 200, 0, 30)
+    button.Position = pos or UDim2.new(0, 10, 0, 80)
+    button.Text = text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    button.Parent = self.MainFrame
+
+    button.MouseButton1Click:Connect(callback)
+
+    return button
+end
+
+function SimpleExecutorUILib:CreateToggle(text, pos, callback)
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0, 200, 0, 30)
+    toggle.Position = pos or UDim2.new(0, 10, 0, 120)
+    toggle.Text = text .. ": OFF"
+    toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggle.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+    toggle.Parent = self.MainFrame
+
+    local state = false
+    toggle.MouseButton1Click:Connect(function()
+        state = not state
+        toggle.Text = text .. ": " .. (state and "ON" or "OFF")
+        callback(state)
+    end)
+
+    return toggle
+end
+
+function SimpleExecutorUILib:CreateTextbox(placeholder, pos, callback)
+    local textbox = Instance.new("TextBox")
+    textbox.Size = UDim2.new(0, 200, 0, 30)
+    textbox.Position = pos or UDim2.new(0, 10, 0, 160)
+    textbox.PlaceholderText = placeholder
+    textbox.Text = ""
+    textbox.TextColor3 = Color3.fromRGB(0, 0, 0)
+    textbox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    textbox.Parent = self.MainFrame
+
+    textbox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(textbox.Text)
+        end
+    end)
+
+    return textbox
+end
+
+return SimpleExecutorUILib
