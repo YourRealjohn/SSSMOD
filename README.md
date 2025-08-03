@@ -4,3 +4,11 @@
 [+] Blood
 
 [+] Ice
+
+# Upcoming Code
+
+[+] Slime 
+
+[+] Blaze
+
+[+] Bloom
