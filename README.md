@@ -5,13 +5,19 @@ but still universal
 # Favorite code
 
 [+] Prime 
+
 [+] Blood
+
 [+] Ice 
+
 [+] Bloom 
 
 # Upcoming Code
 
 [+] Slime
+
 [+] Blaze
+
 [+] Sea
+
 [+] Cloud 
